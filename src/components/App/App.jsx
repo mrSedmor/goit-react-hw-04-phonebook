@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -25,23 +25,16 @@ function getFilteredContacts(filter, contacts) {
 }
 
 export default function App() {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState('');
-  const firstRun = useRef(true);
-
-  useEffect(() => {
-    let contacts = api.restore();
+  const [contacts, setContacts] = useState(() => {
+    const contacts = api.restore();
     if (contacts.length === 0) {
-      contacts = sortContacts(initialContacts);
+      return sortContacts(initialContacts);
     }
-    setContacts(contacts);
-  }, []);
+    return contacts;
+  });
+  const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    if (firstRun.current) {
-      firstRun.current = false;
-      return;
-    }
     api.store(contacts);
   }, [contacts]);
 
