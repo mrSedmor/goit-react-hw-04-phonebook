@@ -1,4 +1,5 @@
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import PropTypes from 'prop-types';
 import css from './contact-form.module.css';
@@ -27,52 +28,63 @@ const schema = yup.object().shape({
 });
 
 export default function ContactForm({ onAddContact }) {
-  function handleAddContact(values, { resetForm }) {
-    if (onAddContact(values)) {
-      resetForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: INITIAL_VALUES,
+  });
+
+  function handleAddContact(data) {
+    if (onAddContact(data)) {
+      reset();
     }
   }
 
-  return (
-    <Formik
-      initialValues={INITIAL_VALUES}
-      validationSchema={schema}
-      onSubmit={handleAddContact}
-    >
-      <Form>
-        <label className={css.fieldWrapper}>
-          <span className={css.label}>Name</span>
-          <Field
-            className={css.input}
-            type="text"
-            name="name"
-            title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-            placeholder="Rosie Simpson"
-          />
-          <ErrorMessage name="name" component="p" className={css.error} />
-        </label>
+  function handleReset(event) {
+    event.preventDefault();
+    reset();
+  }
 
-        <label className={css.fieldWrapper}>
-          <span className={css.label}>Number</span>
-          <Field
-            className={css.input}
-            type="tel"
-            name="number"
-            title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-            placeholder="459-12-56"
-          />
-          <ErrorMessage name="number" component="p" className={css.error} />
-        </label>
-        <div className={css.controls}>
-          <button className={sharedCss.btn} type="submit">
-            Add contact
-          </button>
-          <button className={sharedCss.btn} type="reset">
-            Reset form
-          </button>
-        </div>
-      </Form>
-    </Formik>
+  return (
+    <form onSubmit={handleSubmit(handleAddContact)}>
+      <label className={css.fieldWrapper}>
+        <span className={css.label}>Name</span>
+        <input
+          className={css.input}
+          type="text"
+          title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+          placeholder="Rosie Simpson"
+          {...register('name')}
+          aria-invalid={errors.name ? 'true' : 'false'}
+        />
+        {errors.name && <p className={css.error}>{errors.name.message}</p>}
+      </label>
+
+      <label className={css.fieldWrapper}>
+        <span className={css.label}>Number</span>
+        <input
+          className={css.input}
+          type="tel"
+          title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+          placeholder="459-12-56"
+          {...register('number')}
+          aria-invalid={errors.number ? 'true' : 'false'}
+        />
+        {errors.number && <p className={css.error}>{errors.number.message}</p>}
+      </label>
+      <div className={css.controls}>
+        <button className={sharedCss.btn} type="submit">
+          Add contact
+        </button>
+        <button className={sharedCss.btn} type="button" onClick={handleReset}>
+          Reset form
+        </button>
+      </div>
+    </form>
   );
 }
 
