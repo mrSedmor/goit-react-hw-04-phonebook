@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { ContactFrom, Filter, ContactList } from 'components';
 import * as api from 'services/api';
 import css from './app.module.css';
@@ -44,7 +42,6 @@ export default function App() {
     if (
       contacts.find(({ name }) => name.toLocaleLowerCase() === normalizedName)
     ) {
-      toast.error(`${contact.name} is already in contacts.`);
       return false;
     }
 
@@ -73,12 +70,6 @@ export default function App() {
       <Filter value={filter} onChange={setFilter} />
 
       <ContactList contacts={filteredContacts} onDelete={handleDeleteContact} />
-
-      <ToastContainer
-        position="top-center"
-        autoClose={2000}
-        className={css.toast}
-      />
     </div>
   );
 }

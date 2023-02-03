@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import PropTypes from 'prop-types';
 import css from './contact-form.module.css';
 import sharedCss from 'shared.module.css';
+import { useEffect } from 'react';
 
 const INITIAL_VALUES = {
   name: '',
@@ -32,17 +33,28 @@ export default function ContactForm({ onAddContact }) {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    setError,
+    getValues,
+    formState: { errors, isSubmitSuccessful },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: INITIAL_VALUES,
   });
 
   function handleAddContact(data) {
-    if (onAddContact(data)) {
-      reset();
+    if (!onAddContact(data)) {
+      setError('name', {
+        message: `${getValues('name')} is already in contacts.`,
+      });
+      // reset();
     }
   }
+
+  useEffect(() => {
+    if (isSubmitSuccessful) {
+      reset();
+    }
+  }, [isSubmitSuccessful]);
 
   function handleReset(event) {
     event.preventDefault();
